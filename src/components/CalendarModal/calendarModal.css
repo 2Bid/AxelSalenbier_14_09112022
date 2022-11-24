@@ -1,0 +1,35 @@
+.calendarModal{
+    height: 300px;
+    width: 300px;;
+    background-color: #ededed;
+    position: absolute;
+    top: 110%;
+    border: 1px solid #1a1a1a;
+}
+
+.calendarModal__nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.calendarModal__nav--nav{
+    cursor: pointer;
+    width: 0px;
+    height: 0px;
+    border-style: solid;
+    border-width: 10px;
+}
+
+.calendarModal__nav--prev{
+    border-color: transparent #1a1a1a transparent  transparent ;
+}
+
+.calendarModal__nav--next{
+    border-color: transparent transparent  transparent #1a1a1a;
+}
+
+.calendarModal__table{
+    width: 100%;
+}
