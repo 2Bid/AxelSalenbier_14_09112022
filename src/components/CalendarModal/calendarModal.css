@@ -1,5 +1,5 @@
 .calendarModal{
-    height: 300px;
+    max-height: 300px;
     width: 300px;;
     background-color: #ededed;
     position: absolute;
@@ -22,6 +22,10 @@
     border-width: 10px;
 }
 
+.calendarModal__day--head{
+    padding: 5px;
+}
+
 .calendarModal__nav--prev{
     border-color: transparent #1a1a1a transparent  transparent ;
 }
@@ -32,4 +36,31 @@
 
 .calendarModal__table{
     width: 100%;
+    border-collapse: collapse;
+}
+
+.calendarModal__week{
+    border-top: 1px solid black;
+}
+
+.calendarModal__day{
+    cursor: pointer;
+    text-align: right;
+    padding: 8px 5px;
+}
+
+.calendarModal__day.active{
+    background-color: #3af;
+    box-shadow: #178fe5 0 1px 3px 0 inset;
+    color: #fff;
+}
+
+.calendarModal__week .calendarModal__day{
+    width: calc(100%/7);
+}
+
+@media (hover: hover) {
+    .calendarModal__day:not(.calendarModal__day.active):hover{
+        background-color: #fff;
+    }
 }
