@@ -31,6 +31,12 @@
     background-color: #eeeeee;
 }
 
+.calendarModal__day--next,
+.calendarModal__day--prev{
+    color: #b1b1b1;
+    background-color: #f9f9f9;
+}
+
 .calendarModal__nav--prev{
     border-color: transparent #353535 transparent  transparent ;
 }
@@ -55,14 +61,12 @@
     border-top: 1px solid #b1b1b1;
 }
 
-.calendarModal__week .calendarModal__day:last-child{
-    border-right: none;
+.calendarModal__week .calendarModal__day{
+    width: calc(100%/7);
 }
 
-.calendarModal__day--next,
-.calendarModal__day--prev{
-    color: #b1b1b1;
-    background-color: #f9f9f9;
+.calendarModal__week .calendarModal__day:last-child{
+    border-right: none;
 }
 
 .calendarModal__day.active{
@@ -73,10 +77,6 @@
     background-color: #3af;
     box-shadow: #178fe5 0 1px 3px 0 inset;
     color: #fff;
-}
-
-.calendarModal__week .calendarModal__day{
-    width: calc(100%/7);
 }
 
 @media (hover: hover) {

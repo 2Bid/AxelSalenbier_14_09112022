@@ -25,7 +25,11 @@ export default function Input() {
     >
       <div className="input__container" >
         <input value={selectDate} onClick={()=>{setIsOpen(true)}}/>
-        {isOpen ? <CalendarModal onSelect={handleDateSelect} close={closeCalendar}/> : <></>}
+        {isOpen ? 
+          <CalendarModal onSelect={handleDateSelect} close={closeCalendar} value={selectDate}/> 
+          : 
+          <></>
+        }
       </div>
 
     </div>

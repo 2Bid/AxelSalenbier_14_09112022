@@ -20,7 +20,7 @@ export default function CalendarModal(props) {
   const [indexMonth, setIndexMonth] = useState(currentIndexMonth)
 
   const [currentDay, setCurrentDay] = useState(day+'-'+indexMonth)
-  const [selectedDay, setSelectedDay] = useState(day + '-' + indexMonth)
+  const [selectedDay, setSelectedDay] = useState(props.value.length ? props.value : day +'/'+ indexMonth +'/'+ currentYear)
 
   const [allDaysMonth, setAllDaysMonth] = useState([])
   const allDays = getNumberDaysMonth(currentYear, indexMonth)
@@ -37,62 +37,84 @@ export default function CalendarModal(props) {
   const [nextDaysMonth, setNextDaysMonth] = useState(7 - dayLastDayMonth - 1)
   const [arrayNextDays, setArrayNextDays] = useState([])
 
+  const [loadLastDay,setloadLastDay] = useState(true)
+  const [loadNextDays,setLoadNextDays] = useState(true)
+
   //
   // FONCTIONS & USEEFFECT
   //
 
-  // update array day of the month
   useEffect(()=>{
     setArrayNextDays([])
     setCurrentAllDays(getNumberDaysMonth(currentYear, indexMonth))
     setDayFirstDayMonth(getFirstDayMonth(currentYear, indexMonth).getDay())
     setDayLastDayMonth(getLastDayMonth(currentYear, indexMonth).getDay())
+    setloadLastDay(!loadLastDay)
     setAllDaysMonth(getArrayDaysMonth(currentYear, indexMonth))
   },[indexMonth])
 
   // update array day of the next month
   useEffect(()=>{
-    console.log(arrayNextDays)
     for (let i = 1; i < nextDaysMonth + 1; i++) {
       setArrayNextDays([...arrayNextDays, arrayNextDays.push(i)])
     }
-  },[nextDaysMonth])
+  },[nextDaysMonth, loadNextDays])
 
   useEffect(()=>{
     setNextDaysMonth(7 - dayLastDayMonth - 1)
-  },[dayLastDayMonth])
+    setLoadNextDays(!loadNextDays)
+  },[dayLastDayMonth, loadLastDay])
 
   function goToPrevMonth() {
-    if(indexMonth === 1) setIndexMonth(12) && setCurrentYear(currentYear - 1); else setIndexMonth(indexMonth - 1)
+    if(indexMonth === 1){
+      setCurrentYear(currentYear - 1)
+      setIndexMonth(12)
+    } 
+    else setIndexMonth(indexMonth - 1)
   }
 
   function goToNextMonth() {
-    if(indexMonth === 12) setIndexMonth(1) && setCurrentYear(currentYear + 1); else setIndexMonth(indexMonth + 1)
+    if(indexMonth === 12){
+      setCurrentYear(currentYear + 1)
+      setIndexMonth(1) 
+    }
+    else setIndexMonth(indexMonth + 1)
+  }
+  
+  function goToSelectMonth(e) {
+    const stringNumber = e.target[e.target.selectedIndex].attributes[0].value
+    const newIndexMonth = parseInt(stringNumber) + 1
+    setIndexMonth(newIndexMonth)
+  }
+
+  function resetDate (){
+    setIndexMonth(currentIndexMonth)
+    setSelectedDay(day +'/'+ currentIndexMonth +'/'+ currentYear)
+  }
+
+  function concatSelectedDay(day, month, year){
+    setSelectedDay(day + '/' + month + '/' + year)
   }
 
   function selectDate(e,day, indexMonth, currentYear) {
-    concatSelectedDay(day, indexMonth)
-    props.onSelect(day+'/'+indexMonth+'/'+currentYear)
+    concatSelectedDay(day, indexMonth, currentYear)
+    props.onSelect(day + '/' + indexMonth + '/' + currentYear)
     props.close()
-  } 
-
-  function concatSelectedDay(day,month){
-    setSelectedDay(day + '-' + month)
   }
 
   return (
     <div className='calendarModal'>
       <div className='calendarModal__nav'>
-        <span className='calendarModal__nav--nav calendarModal__nav--prev' onClick={()=>goToPrevMonth()}></span>
+        <span className='calendarModal__nav--nav calendarModal__nav--prev' onClick={(e)=>goToPrevMonth(e)}></span>
 
-        <div className='calendarModal__nav--reset'>
+        <div className='calendarModal__nav--reset' onClick={()=>resetDate()}>
           <img src={Homelogo} alt="bouton de reinitialisation du calendrier"/>
         </div>
 
-        <select className='calendarModal__nav--month'>
+        <select className='calendarModal__nav--month' onChange={(e)=>goToSelectMonth(e)}>
           {allMonth.map((month, index)=>{
             return (
-              <option key={index} value={month} selected={index === indexMonth - 1}>{month}</option>
+              <option key={index} data-index={index} value={month} selected={index === indexMonth - 1}>{month}</option>
             )
           })}
         </select>
@@ -125,7 +147,7 @@ export default function CalendarModal(props) {
                 className={`
                   calendarModal__day--prev
                   calendarModal__day
-                  ${(prevDaysMonth - dayFirstDayMonth + index + 1) +'-'+(indexMonth - 1) === selectedDay ? 'selected' : ''}
+                  ${(prevDaysMonth - dayFirstDayMonth + index + 1) +'/'+ (indexMonth - 1) +'/'+ currentYear === selectedDay ? 'selected' : ''}
                 `} 
                 data-month={indexMonth - 1} 
                 onClick={(e)=>{
@@ -139,8 +161,8 @@ export default function CalendarModal(props) {
                 className={`
                   calendarModal__day
                   ${allDaysMonth[index]}
-                  ${allDaysMonth[index] +'-'+indexMonth === selectedDay ? 'selected' : ''}
-                  ${allDaysMonth[index] +'-'+indexMonth === currentDay ? 'acive' : ''}
+                  ${allDaysMonth[index] +'/'+ indexMonth +'/'+ currentYear === selectedDay ? 'selected' : ''}
+                  ${allDaysMonth[index] +'-'+ indexMonth === currentDay ? 'acive' : ''}
                 `} 
                 data-month={indexMonth} 
                 onClick={(e)=>{
@@ -156,8 +178,8 @@ export default function CalendarModal(props) {
                 className={`
                   calendarModal__day
                   ${day}
-                  ${day +'-'+indexMonth === selectedDay ? 'selected' : ''}
-                  ${day +'-'+indexMonth === currentDay ? 'acive' : ''}
+                  ${day +'/'+ indexMonth +'/'+ currentYear === selectedDay ? 'selected' : ''}
+                  ${day +'-'+ indexMonth === currentDay ? 'acive' : ''}
                 `} 
                 data-month={indexMonth}
                   onClick={(e)=>{
@@ -174,8 +196,8 @@ export default function CalendarModal(props) {
                 className={`
                   calendarModal__day
                   ${day}
-                  ${day +'-'+indexMonth === selectedDay ? 'selected' : ''}
-                  ${day +'-'+indexMonth === currentDay ? 'acive' : ''}
+                  ${day +'/'+ indexMonth +'/'+ currentYear === selectedDay ? 'selected' : ''}
+                  ${day +'-'+ indexMonth === currentDay ? 'acive' : ''}
                 `} 
                 data-month={indexMonth} 
                 onClick={(e)=>{
@@ -192,8 +214,8 @@ export default function CalendarModal(props) {
                 className={`
                   calendarModal__day
                   ${day}
-                  ${day +'-'+indexMonth === selectedDay ? 'selected' : ''}
-                  ${day +'-'+indexMonth === currentDay ? 'active' : ''}
+                  ${day +'/'+ indexMonth +'/'+ currentYear === selectedDay ? 'selected' : ''}
+                  ${day +'-'+ indexMonth === currentDay ? 'active' : ''}
                 `} 
                 data-month={indexMonth} 
                 onClick={(e)=>{
@@ -210,8 +232,8 @@ export default function CalendarModal(props) {
                 className={`
                   calendarModal__day
                   ${day}
-                  ${day +'-'+indexMonth === selectedDay ? 'selected' : ''}
-                  ${day +'-'+indexMonth === currentDay ? 'active' : ''}
+                  ${day +'/'+ indexMonth +'/'+ currentYear === selectedDay ? 'selected' : ''}
+                  ${day +'-'+ indexMonth === currentDay ? 'active' : ''}
                 `} 
                 data-month={indexMonth} 
                 onClick={(e)=>{
@@ -221,6 +243,7 @@ export default function CalendarModal(props) {
               })
             }
             {
+              // verifie si la la rangé est composé uniquement de jour du mois actuel
               allDaysMonth.slice(28 - dayFirstDayMonth, 28 - dayFirstDayMonth + 7).length === 7 ?
                 <></>
               :
@@ -230,7 +253,7 @@ export default function CalendarModal(props) {
                     calendarModal__day--next
                     calendarModal__day
                     ${index + 1}
-                    ${(index + 1) +'-'+ (indexMonth + 1) === selectedDay ? 'selected' : ''}
+                    ${(index + 1) +'/'+ (indexMonth + 1) +'/'+ currentYear === selectedDay ? 'selected' : ''}
                   `} 
                   data-month={indexMonth + 1} 
                   onClick={(e)=>{
@@ -241,41 +264,44 @@ export default function CalendarModal(props) {
             }
           </tr>
           {
+            // verifie si la somme des : 
+            // nombre total des jours du mois + jour du mois précédent affiché + jour du mois d'apres inferieur, est supérieur a 35
             (currentAllDays + dayFirstDayMonth + (7 - dayLastDayMonth - 1)) > 35 ?
+            
             <tr className='calendarModal__week-6 calendarModal__week'>
-            {
-              allDaysMonth.slice(28 - dayFirstDayMonth + 7).map((day, index)=>{
-                return <td key={index} 
-                className={`
-                  calendarModal__day
-                  ${day}
-                  ${day +'-'+indexMonth === selectedDay ? 'selected' : ''} 
-                  ${day +'-'+indexMonth === currentDay ? 'active' : ''}
-                `}
-                data-month={indexMonth} 
-                onClick={(e)=>{
-                  selectDate(e, day, indexMonth, currentYear)
-                }}
-                >{day}</td>
-              })
-            }
-            {
-              arrayNextDays.map((day, index)=>{
-                return <td key={index} 
-                className={`
-                  calendarModal__day--next
-                  calendarModal__day
-                  ${index + 1} 
-                  ${(index + 1) +'-'+(indexMonth + 1) === selectedDay ? 'selected' : ''}
-                `} 
-                data-month={indexMonth + 1} 
-                onClick={(e)=>{
-                  selectDate(e, index + 1, indexMonth + 1, currentYear)
-                }}
-                >{index + 1}</td>
-              })
-            }
-          </tr>
+              {
+                allDaysMonth.slice(28 - dayFirstDayMonth + 7).map((day, index)=>{
+                  return <td key={index} 
+                  className={`
+                    calendarModal__day
+                    ${day}
+                    ${day +'/'+ indexMonth +'/'+ currentYear === selectedDay ? 'selected' : ''} 
+                    ${day +'-'+ indexMonth === currentDay ? 'active' : ''}
+                  `}
+                  data-month={indexMonth} 
+                  onClick={(e)=>{
+                    selectDate(e, day, indexMonth, currentYear)
+                  }}
+                  >{day}</td>
+                })
+              }
+              {
+                arrayNextDays.map((day, index)=>{
+                  return <td key={index} 
+                  className={`
+                    calendarModal__day--next
+                    calendarModal__day
+                    ${index + 1} 
+                    ${(index + 1) +'/'+ (indexMonth + 1) +'/'+ currentYear === selectedDay ? 'selected' : ''}
+                  `} 
+                  data-month={indexMonth + 1} 
+                  onClick={(e)=>{
+                    selectDate(e, index + 1, indexMonth + 1, currentYear)
+                  }}
+                  >{index + 1}</td>
+                })
+              }
+            </tr>
             :
             <></>
           }
