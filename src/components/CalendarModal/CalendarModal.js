@@ -19,7 +19,7 @@ export default function CalendarModal(props) {
   const currentIndexMonth = getCurrentIndexMonth() + 1
   const [indexMonth, setIndexMonth] = useState(currentIndexMonth)
 
-  const [currentDay, setCurrentDay] = useState(day+'-'+indexMonth)
+  const currentDay = day+'-'+indexMonth
   const [selectedDay, setSelectedDay] = useState(props.value.length ? props.value : day +'/'+ indexMonth +'/'+ currentYear)
 
   const [allDaysMonth, setAllDaysMonth] = useState([])
@@ -33,16 +33,29 @@ export default function CalendarModal(props) {
 
   // MOIS PRECEDENT ET SUIVANT
   const allPrevDays = getNumberDaysMonth(currentYear, indexMonth)
-  const [prevDaysMonth, setPrevDaysMonth] = useState(allPrevDays)
   const [nextDaysMonth, setNextDaysMonth] = useState(7 - dayLastDayMonth - 1)
   const [arrayNextDays, setArrayNextDays] = useState([])
 
-  const [loadLastDay,setloadLastDay] = useState(true)
-  const [loadNextDays,setLoadNextDays] = useState(true)
+
+  // verifie que les données soit bien recupérés
+  const [loadLastDay,setloadLastDay] = useState(0)
+  const [loadNextDays,setLoadNextDays] = useState(0)
+
+  // Select années
+  const [allYears, setAllYears] = useState([])
+  const firstYearSelectable = year - 50
+  const lastYearSelectable = year + 50
 
   //
   // FONCTIONS & USEEFFECT
   //
+
+  // update select years
+  useEffect(()=>{
+    for (let i = firstYearSelectable; i < lastYearSelectable; i++) {
+      setAllYears([...allYears, allYears.push(i)])
+    }
+  },[])
 
   useEffect(()=>{
     setArrayNextDays([])
@@ -51,18 +64,22 @@ export default function CalendarModal(props) {
     setDayLastDayMonth(getLastDayMonth(currentYear, indexMonth).getDay())
     setloadLastDay(!loadLastDay)
     setAllDaysMonth(getArrayDaysMonth(currentYear, indexMonth))
-  },[indexMonth])
+  },[indexMonth, currentYear])
 
   // update array day of the next month
   useEffect(()=>{
-    for (let i = 1; i < nextDaysMonth + 1; i++) {
-      setArrayNextDays([...arrayNextDays, arrayNextDays.push(i)])
+    if(loadNextDays !== 0 ){
+      for (let i = 1; i < nextDaysMonth + 1; i++) {
+        setArrayNextDays([...arrayNextDays, arrayNextDays.push(i)])
+      }
     }
   },[nextDaysMonth, loadNextDays])
 
   useEffect(()=>{
-    setNextDaysMonth(7 - dayLastDayMonth - 1)
-    setLoadNextDays(!loadNextDays)
+    if(loadLastDay !== 0 ){ 
+      setNextDaysMonth(7 - dayLastDayMonth - 1);
+      setLoadNextDays(!loadNextDays)
+    }
   },[dayLastDayMonth, loadLastDay])
 
   function goToPrevMonth() {
@@ -87,9 +104,16 @@ export default function CalendarModal(props) {
     setIndexMonth(newIndexMonth)
   }
 
+  function goToSelectYear(e) {
+    const stringNumber = e.target[e.target.selectedIndex].attributes[0].value
+    const newYear = parseInt(stringNumber)
+    setCurrentYear(newYear)
+  }
+
   function resetDate (){
+    setCurrentYear(year)
     setIndexMonth(currentIndexMonth)
-    setSelectedDay(day +'/'+ currentIndexMonth +'/'+ currentYear)
+    setSelectedDay(day +'/'+ currentIndexMonth +'/'+ year)
   }
 
   function concatSelectedDay(day, month, year){
@@ -119,8 +143,12 @@ export default function CalendarModal(props) {
           })}
         </select>
 
-        <select className='calendarModal__nav--year'>
-          <option defaultValue={currentYear}>{currentYear}</option>
+        <select className='calendarModal__nav--year' onChange={(e)=>goToSelectYear(e)}>
+          {allYears.map((year, index)=>{
+            return (
+              <option key={index} value={year} selected={year === currentYear}>{year}</option>
+            )
+          })}
         </select>
 
         <span className='calendarModal__nav--nav calendarModal__nav--next' onClick={()=>goToNextMonth()}></span>
@@ -147,12 +175,12 @@ export default function CalendarModal(props) {
                 className={`
                   calendarModal__day--prev
                   calendarModal__day
-                  ${(prevDaysMonth - dayFirstDayMonth + index + 1) +'/'+ (indexMonth - 1) +'/'+ currentYear === selectedDay ? 'selected' : ''}
+                  ${(allPrevDays - dayFirstDayMonth + index + 1) +'/'+ (indexMonth - 1) +'/'+ currentYear === selectedDay ? 'selected' : ''}
                 `} 
                 data-month={indexMonth - 1} 
                 onClick={(e)=>{
-                  selectDate(e, (prevDaysMonth - dayFirstDayMonth + index + 1), indexMonth - 1, currentYear)
-                }}>{prevDaysMonth - dayFirstDayMonth + index + 1}</td>
+                  selectDate(e, (allPrevDays - dayFirstDayMonth + index + 1), indexMonth - 1, currentYear)
+                }}>{allPrevDays - dayFirstDayMonth + index + 1}</td>
               })
             }
             {
@@ -309,5 +337,4 @@ export default function CalendarModal(props) {
       </table>
     </div>
   )
-  
 }
